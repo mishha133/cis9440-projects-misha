@@ -5,32 +5,25 @@ WITH locations_311 AS (
         incident_zip AS zip_code,
         street_name,
         cross_street_1 AS cross_street_name,
-        cross_street_2 AS off_street_name,
-        latitude,
-        longitude
+        cross_street_2 AS off_street_name
     FROM {{ ref('stg_nyc_311_vehicle_complaints') }}
     WHERE borough IS NOT NULL
 ),
-
 locations_crashes AS (
     SELECT DISTINCT
         borough,
         zip_code,
         on_street_name AS street_name,
         cross_street_name,
-        off_street_name,
-        latitude,
-        longitude
+        off_street_name
     FROM {{ ref('stg_nyc_vehicle_crashes') }}
     WHERE borough IS NOT NULL
 ),
-
 combined AS (
     SELECT * FROM locations_311
     UNION DISTINCT
     SELECT * FROM locations_crashes
 ),
-
 final AS (
     SELECT
         {{ dbt_utils.generate_surrogate_key([
@@ -42,10 +35,7 @@ final AS (
         zip_code,
         street_name,
         cross_street_name,
-        off_street_name,
-        latitude,
-        longitude
+        off_street_name
     FROM combined
 )
-
 SELECT * FROM final
